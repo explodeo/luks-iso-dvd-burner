@@ -37,7 +37,7 @@ These Links helped me write this script:
 ```bash
   $ sudo cryptsetup luksOpen [--key-file KEYFILE] $LO_DEVICE VOLUME_NAME
 ```
-# 3. mount the device: 
+3. mount the device: 
 ```bash
     $ sudo mount /dev/mapper/VOLUME_NAME /mnt/MOUNTPOINT
 ```
