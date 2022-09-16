@@ -1,10 +1,4 @@
 #!/bin/bash
-# Requirements: 
-## sudo dnf -y install udftools dvd+rw-tools.x86_64 brasero
-
-# Sources:
-## https://www.frederickding.com/posts/2017/08/luks-encrypted-dvd-bd-data-disc-guide-273316/
-## https://gist.github.com/sowbug/c7f83140581fbe3e6a9b3ddf24891e77
 
 # check if root first
 if ! [ $(id -u) = 0 ]; then
@@ -68,17 +62,8 @@ IMAGE_SIZE=$(( $IMAGE_SIZE > 500000000 ? $IMAGE_SIZE+200000000 : 700000000)) #20
 
 echo $FILE_LIST $IMAGE_FILE $USE_FILE_PATH $IMAGE_SIZE $KEY_FILE $LO_ADAPTER
 
-
-# get size of directory to burn using du -s /dir
-# get total size of a file list: du -ch "$FILE_LIST" | tail -1 | cut -f 1
-# for a huge list of files: cat $FILELIST | while read file; do du "$file" done | awk '{totalsize+=$1} END {print totalsize}'
-
-
 # make a disk image of specified size
 truncate -s $IMAGE_SIZE $IMAGE_FILE
-
-# make keyfile
-# dd bs=512 count=4 if=/dev/random of=./$KEY_FILE_NAME iflag=fullblock
 
 # generate LUKS-encrypted UDF Filesystem for the image
 losetup $LO_ADAPTER $IMAGE_FILE
@@ -110,24 +95,4 @@ rmdir /media/$TEMP_MOUNTPOINT
 
 echo "[!] The keyfile for $IMAGE_FILE is at ./$KEY_FILE"
 echo 'DONE!'
-
-## to mount the encrypted file:
-# 1. make it accessible via loopback device: losetup 
-    # /dev/loop0 image.iso (or /dev/sr0)
-# 2. setup the device to be mapped as a logical volume: 
-    # cryptsetup luksOpen --key-file key /dev/loop0 vol1
-# 3. mount the device: 
-    # mount /dev/mapper/vol1 /mnt/test
-
-# for transferring files, use Brasero.
-#  to copy from the disk, use RSync: rsync -ah --progress BIGFILE /root/BIG.txt
-
-## to unmount:
-# 1. umount /mnt/test
-# 2. cryptsetup luksClose vol1
-# 3. losetup -d /dev/loop0
-
-## burn the iso as-is to a DVD:
-# dnf makecache --refresh && dnf -y install dvd+rw-tools
-# growisofs -dvd-compat -Z /dev/sr0=$IMAGE_NAME
 
